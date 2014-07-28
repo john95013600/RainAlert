@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Rain Alert</title>
+	<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+	<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+	<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;	
+			font-family: 微軟正黑體;
+		}
+		body{
+			padding-top: 50px;
+			background-color: #E0E1DD;
+		}
+
+		a{
+			text-decoration: none;
+			color: #222;
+		}
+
+		.box{
+			width: 88%;
+			padding: 3%;
+			margin: 3%;
+			background-color: #FFF;	
+		}
+		.box:hover{
+			box-shadow: 0px 2px 1px #888888;
+			cursor: pointer;
+		}
+		.time{
+			font-size: 14px;
+			color: #7C7C7C;
+			display: inline-block;
+		}
+		.author{
+			color: #7C7C7C;
+			font-size: 14px;
+			display: inline-block;
+		}
+		.summary{
+			margin-top: 10px;
+			word-break:break-all;
+		}
+		.header{
+			background-color: #272822;
+			color: #FFF;
+			padding: 1%;
+			width: 100%;
+			height: 40px;
+			position: fixed;
+			left: 0;
+			top: 0;	
+		}
+		.footer{
+			background-color: #131311;
+			color: #DADBD5;
+			font-size: 13px;
+			padding: 1%;
+			text-align: right;
+		}
+		.footer a{
+			color: #FFF;
+		}
+
+	</style>
+</head>
+<body>
+	
+	<div class="header">
+		<h1>降雨預報APP</h1>
+	</div>
+
+	<div class="content"></div>
+
+	<div class="footer">
+		Copyright © 2014 <a href="https://www.facebook.com/demonzap" target="new">Zap</a> Inc. All rights reserved
+	</div>
+
+	
+	<script>
+
+		var xmlDoc ;
+		var entry;
+		var xml;
+		$(function(){
+			/*
+			<a href="www.yahoo.com">
+			<div class="box">
+			<h1 class="title">淹水</h1>
+			<p class="author">水利署</p>
+			<p class="time">2014-07-28 22:00:00</p>
+			<p class="summary">水利署訊:臺中市東勢區淹水二級警戒(東勢站1小時雨量63.5mm) ,如持續降雨轄內易淹水村里及道路可能3小時內開始積淹水(如：東勢區-明正里,東新里,泰興里,慶東里,新盛里,隆興里,福隆里,中嵙里,泰昌里,)，建請即時注意淹水通報及應變。</p>
+			</div>
+			</a>
+			*/
+			var all = $('.content');
+
+			$.ajax({
+				url: 'getPage.php',
+				dataType: 'text',
+				data: {},
+			})
+			.done(function (data) {
+				
+				xmlDoc = $.parseXML(data);
+				xml = $( xmlDoc );
+				entry = xml.find("entry");
+
+				var i=0,j=0;
+				//var i=0,j=entry.length-1;
+				//for(var i=entry.length-10;i<entry.length;i++){
+				//while(i<10 && j>=0){
+				while(i<10 && j<entry.length){
+					var ele = entry.eq(j);
+					j++;
+					var author = ele.find('author').find('name').text();
+					
+					if(author=="中央氣象局"){
+					i++;
+					var day = ' ';
+					
+					var t = ele.find('title').text(),
+					update = ele.find('updated').text(),
+					link = ele.find('link').attr('href'),
+					summary = ele.find('summary').text();
+
+
+					sp = update.split('T');
+					spsp = sp[1].split('+');
+					day+=sp[0]+" ";
+					day+=spsp[0];
+
+					var a = $('<a>').attr({}),
+					box = $('<div>').addClass('box'),
+					tit = $('<h1>').addClass('title').text(t),
+					aut = $('<p>').addClass('author').text(author),
+					tim = $('<p>').addClass('time').text(day),
+					suy = $('<p>').addClass('summary').html(summary);
+					box.append(tit).append(aut).append(" ").append(tim).append(suy)
+					a.append(box);
+					all.append(a);
+					}
+				}
+
+			console.log("DONE!");
+			})
+			.fail(function() {
+				console.log("error");
+			})
+			.always(function() {
+				console.log("complete");
+			});
+			
+
+		});
+
+</script>
+<img src="http://fc09.deviantart.net/fs70/i/2013/120/6/d/rain_by_tuyetdinhsinhvat-d63lnld.jpg" style="display:none">
+</body>
+</html>
